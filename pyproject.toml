@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "final_project"
-version = "0.1.0"
+version = "0.0.0"
 description = "Research and experimental Python package for DSAN 6700 final project."
 authors = ["Isfar Baset, Ziyan Di, Sheeba Moghal, Bella Shi and Jacky Zhang"]
 license = "MIT"
