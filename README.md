@@ -12,6 +12,30 @@ pip install final_project
 
 - TODO
 
+## Viewing the Documentation
+
+We produced Sphinx documentation, you can view it locally by opening the generated HTML files in your browser:
+
+   ```bash
+   open docs/_build/html/index.html
+   ```
+
+   - On **Linux**, use:
+     ```bash
+     xdg-open docs/_build/html/index.html
+     ```
+
+   - On **Windows**, use:
+     ```cmd
+     start docs\_build\html\index.html
+     ```
+
+---
+
+### Notes:
+- Ensure you have built the documentation successfully before attempting to open the HTML file.
+- The main landing page for the documentation is `index.html`.
+
 ## Contributing
 
 Clone and set up the repository with
