@@ -10,7 +10,35 @@ pip install final_project
 
 ## Usage
 
-- TODO
+bm25.py
+
+Contains the BM25Retriever class for the first-stage retrieval using statistical methods.
+
+faiss.py
+
+Contains the FAISSRetriever class for second-stage retrieval using neural embeddings.
+
+pipeline.py
+
+Implements the TwoStagePipeline class, integrating BM25 and FAISS to perform a two-stage retrieval process.
+
+app.py
+
+A Flask application exposing your project as an API.
+
+This allows users to interact with your pipeline via HTTP requests.
+
+tests/ Directory
+This directory contains all test files.
+
+test_pipeline.py
+
+Unit tests for pipeline.py. Ensures the two-stage pipeline works as expected.
+
+test_final_project.py
+Integration tests for the project as a whole (e.g., testing the Flask API or the full pipeline)
+
+
 
 ## Viewing the Documentation
 
