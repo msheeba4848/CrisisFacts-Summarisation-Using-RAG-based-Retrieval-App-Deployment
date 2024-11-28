@@ -10,35 +10,72 @@ pip install final_project
 
 ## Usage
 
-bm25.py
+### Retrieval Part: 
 
-Contains the BM25Retriever class for the first-stage retrieval using statistical methods.
+This part implements a two-stage document retrieval system for ranking and retrieving documents based on their relevance to a user query. It combines BM25 retrieval in Stage 1 with FAISS-based neural embeddings in Stage 2, providing a robust and efficient approach to information retrieval.
 
-faiss.py
+#### Purpose
+This retrieval system is designed to efficiently retrieve and rank documents from large datasets using both lexical similarity (BM25) and semantic similarity (FAISS with SentenceTransformers). Key applications include:
 
-Contains the FAISSRetriever class for second-stage retrieval using neural embeddings.
+- Search engines for textual data.
+- Research tools to identify relevant documents in large corpora.
+- Semantic retrieval for better contextual understanding of user queries.
 
-pipeline.py
+#### System Architecture
+##### Stage 1: BM25 Retrieval
+<b> Purpose</b>: Quickly rank documents based on lexical similarity (e.g., overlapping keywords).<br>
+<b> Method </b>: Uses the BM25 algorithm to retrieve the top k most relevant documents.<br>
+<b> Implementation</b>: Implemented in the BM25Retriever class (src/final_project/retrieval/bm25.py), which:<br>
+- Tokenizes input documents.<br>
+- Computes BM25 relevance scores for a query.<br>
+- Returns the top k ranked documents.<br>
 
-Implements the TwoStagePipeline class, integrating BM25 and FAISS to perform a two-stage retrieval process.
+##### Stage 2: FAISS + Neural Embeddings
+<b>Purpose</b>: Refine and re-rank the results from Stage 1 using semantic embeddings.<br/>
+<b> Method:</b> <br/>
+FAISS: A library for efficient similarity search and clustering of dense vectors.
+SentenceTransformer: Generates high-quality semantic embeddings for documents and queries.
+<b>Implementation:</b>
+Implemented in the FAISSRetriever class (src/final_project/retrieval/faiss.py), which: <br/>
+- Encodes documents and queries into embeddings using a pre-trained SentenceTransformer model (all-MiniLM-L6-v2 by default).
+- Builds an index of document embeddings using FAISS.
+- Retrieves and ranks the top k documents based on cosine similarity.
+- 
+#### Pipeline
+The TwoStagePipeline (src/final_project/retrieval/pipeline.py) orchestrates the retrieval process:
+0. preprocess: Tokenizes and preprocesses input documents.
+1. BM25 Stage: Retrieves a subset of documents (bm25_top_k) based on keyword similarity.<br/>
+2. FAISS Stage: Further narrows down and re-ranks these documents (faiss_top_k) based on semantic similarity.
 
-app.py
+#### file_reader.py
 
-A Flask application exposing your project as an API.
+Contains utility functions for reading documents from: <br/>
+A directory of text files.
+A CSV file with a specific column.
+A JSON file with structured data.
 
-This allows users to interact with your pipeline via HTTP requests.
+#### Test Usage
+```python
+poetry install
+```
 
-tests/ Directory
-This directory contains all test files.
+The BM25Retriever requires the punkt tokenizer from NLTK. Run:
 
-test_pipeline.py
+```bash
+python setup_nltk.py
+```
 
-Unit tests for pipeline.py. Ensures the two-stage pipeline works as expected.
+Use pytest to validate the retrieval pipeline:
 
-test_final_project.py
-Integration tests for the project as a whole (e.g., testing the Flask API or the full pipeline)
+```bash
+pytest tests/test_pipeline.py
+```
 
-
+#### Running the script
+    
+```bash
+python run_pipeline.py
+``` 
 
 ## Viewing the Documentation
 

@@ -1,6 +1,19 @@
 from src.final_project.retrieval.bm25 import BM25Retriever
 from src.final_project.retrieval.faiss import FAISSRetriever
 
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+
+def preprocess_documents(documents): # Use the preprocessing function to clean and tokenize the text:
+    stop_words = set(stopwords.words('english'))
+    processed_documents = []
+    for doc in documents:
+        tokens = word_tokenize(doc.lower())
+        filtered_tokens = [word for word in tokens if word.isalnum() and word not in stop_words]
+        processed_documents.append(' '.join(filtered_tokens))
+    return processed_documents
+
+
 class TwoStagePipeline:
     def __init__(self, documents):
         self.documents = documents
