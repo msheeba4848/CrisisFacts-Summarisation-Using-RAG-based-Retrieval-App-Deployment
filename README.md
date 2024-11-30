@@ -180,3 +180,110 @@ CRISISFacts/
 ├── README.md                   # Project overview and usage instructions
 └── discussion.md               # Documentation of challenges and improvements
 
+# CRISISFacts Project: Real-Time Crisis Summarization
+
+## Project Overview
+The CRISISFacts project focuses on efficiently summarizing and retrieving crisis-related information from diverse data sources, including social media, news articles, and official statements.
+
+---
+
+## Steps Completed
+
+### 1. Define File Structure
+We created a structured directory for the project to ensure modularity and maintainability:
+- `src/`: Core application logic for backend and frontend.
+- `data/`: Raw and processed data, including embeddings.
+- `tests/`: Unit and integration tests.
+- `notebooks/`: EDA and model prototyping.
+- `docker/`: Docker configuration for containerization.
+- `scripts/`: Standalone scripts for preprocessing and other utilities.
+
+---
+
+### 2. Create Backend Logic
+We implemented the backend with the following components:
+- **Data Retrieval**:
+  - Used FAISS to perform Approximate Nearest Neighbor (ANN) search for document retrieval.
+- **Summarization**:
+  - Utilized HuggingFace's `transformers` library with models like PEGASUS and BART for abstractive summarization.
+- **Preprocessing**:
+  - Implemented functions for tokenization, cleaning, and filtering irrelevant data.
+
+Key files:
+- `src/backend/retrieval.py`
+- `src/backend/summarization.py`
+- `src/backend/preprocessing.py`
+
+---
+
+### 3. Set Up Frontend
+Designed a basic frontend using Flask (or React as an optional framework). Features include:
+- Query input box.
+- Dropdown for filtering results by media type.
+- Display section for summaries and links.
+
+Key files:
+- `src/app/__init__.py`
+- `src/app/routes.py`
+
+---
+
+### 4. Add Unit Tests
+Added tests to verify the functionality of the backend:
+- Retrieval logic: Ensures documents are retrieved based on the query and filters.
+- Summarization logic: Validates the generation of concise summaries.
+
+Key files:
+- `tests/test_retrieval.py`
+- `tests/test_summarization.py`
+
+---
+
+### 5. Install Dependencies
+Installed the necessary libraries for the project:
+- Core libraries: Flask, Transformers, FAISS, NumPy, PyTorch.
+- Development tools: pytest, black, flake8, isort.
+
+Dependencies are managed through:
+- `requirements.txt` for `pip` users.
+- `pyproject.toml` for `Poetry` users.
+
+---
+
+### 6. Docker Integration
+Set up Docker for containerized deployment:
+- Created a `Dockerfile` for the backend.
+- Configured `docker-compose.yml` to run multiple services, including the frontend and backend.
+
+Key files:
+- `docker/Dockerfile`
+- `docker/docker-compose.yml`
+
+---
+
+### 7. Create a Virtual Environment
+Set up a virtual environment for dependency isolation:
+- Using `venv` or `virtualenv`:
+  - Created and activated a virtual environment.
+  - Installed dependencies from `requirements.txt`.
+- Using `Poetry`:
+  - Initialized the environment with `poetry install`.
+  - Managed dependencies via `pyproject.toml`.
+
+---
+
+### 8. Added Documentation
+Documented project details and usage:
+- Wrote a detailed `README.md` to guide users on setup and usage.
+- Included a `discussion.md` for challenges and potential improvements.
+
+---
+
+## Next Steps
+1. Implement the frontend interface (React or Flask templates).
+2. Extend functionality with geospatial visualization or multimodal data.
+3. Optimize the summarization and retrieval pipelines for real-time performance.
+4. Deploy the application and evaluate using real-world crisis datasets.
+
+---
+
