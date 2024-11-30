@@ -122,3 +122,60 @@ Run tests using
 pytest -v tests
 ```
 
+
+
+_------_
+
+# Proposed File Structure
+
+CRISISFacts/
+├── data/
+│   ├── raw/                    # Raw data files (e.g., social media, news, and official statements)
+│   ├── processed/              # Preprocessed data ready for modeling
+│   └── embeddings/             # Precomputed vector embeddings for ANN search
+├── src/
+│   ├── app/                    # Flask or FastAPI application code
+│   │   ├── __init__.py
+│   │   ├── routes.py           # API routes for query input and summarization
+│   │   └── utils.py            # Helper functions for app
+│   ├── backend/                # Backend logic for retrieval and summarization
+│   │   ├── __init__.py
+│   │   ├── retrieval.py        # ANN search (FAISS/ScaNN implementation)
+│   │   ├── summarization.py    # Summarization logic using PEGASUS, T5, or BART
+│   │   └── preprocessing.py    # Tokenization and data cleaning scripts
+│   ├── frontend/               # Frontend integration for query input and result display
+│   │   ├── static/             # Static files (CSS, JS)
+│   │   ├── templates/          # HTML templates
+│   │   └── app.js              # Frontend logic (if using React)
+│   ├── evaluation/             # Scripts for model evaluation
+│   │   ├── rouge_eval.py       # ROUGE metric evaluation
+│   │   └── precision_at_k.py   # Precision@k computation
+│   └── config.py               # Configuration variables (e.g., paths, constants)
+├── tests/
+│   ├── test_retrieval.py       # Unit tests for retrieval module
+│   ├── test_summarization.py   # Unit tests for summarization module
+│   ├── test_preprocessing.py   # Unit tests for preprocessing logic
+│   ├── test_app.py             # Tests for API endpoints
+│   └── test_integration.py     # Integration tests for end-to-end system
+├── notebooks/
+│   ├── eda.ipynb               # Exploratory Data Analysis on the CRISISFacts Dataset
+│   └── model_prototyping.ipynb # Prototyping summarization and retrieval models
+├── docker/
+│   ├── Dockerfile              # Dockerfile for backend services
+│   ├── Dockerfile.frontend     # Dockerfile for frontend service
+│   └── docker-compose.yml      # Compose file for multi-service setup
+├── scripts/
+│   ├── preprocess_data.py      # Script for batch data preprocessing
+│   ├── generate_embeddings.py  # Script to compute vector embeddings
+│   └── start_app.py            # Script to launch the app (used in Docker)
+├── .github/
+│   ├── workflows/
+│   │   ├── ci.yml              # CI workflow for testing and linting
+│   │   └── deploy.yml          # Deployment workflow
+├── .env.example                # Example environment variables file
+├── .gitignore                  # Files and directories to ignore in version control
+├── poetry.lock                 # Poetry lock file for dependency resolution
+├── pyproject.toml              # Poetry configuration file
+├── README.md                   # Project overview and usage instructions
+└── discussion.md               # Documentation of challenges and improvements
+
