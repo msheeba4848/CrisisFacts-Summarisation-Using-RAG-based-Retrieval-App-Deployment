@@ -1,18 +1,14 @@
-from faiss import IndexFlatL2
+import faiss
 import numpy as np
 
-# Mocked document embeddings
-documents = [
-    {"text": "Flooding in Jakarta has displaced thousands.", "type": "news"},
-    {"text": "Relief efforts in Florida have increased after Hurricane Ian.", "type": "social"},
-]
-embeddings = np.random.rand(len(documents), 128)  # Mock embeddings
+def retrieve_documents(query, filters, top_k=10):
+    # Dummy embeddings for demonstration
+    embeddings = np.load('data/embeddings/embeddings.npy')
+    index = faiss.read_index('data/embeddings/index.faiss')
 
-# FAISS Index
-index = IndexFlatL2(128)
-index.add(embeddings)
+    query_embedding = np.random.rand(1, embeddings.shape[1])  # Replace with real embedding
+    distances, indices = index.search(query_embedding, top_k)
 
-def retrieve_documents(query, filters):
-    query_embedding = np.random.rand(1, 128)  # Mock query embedding
-    distances, indices = index.search(query_embedding, 5)
-    return [documents[i] for i in indices[0] if documents[i]["type"] in filters]
+    # Retrieve documents (dummy data here)
+    documents = [{"id": i, "text": f"Document {i}", "score": d} for i, d in zip(indices[0], distances[0])]
+    return documents

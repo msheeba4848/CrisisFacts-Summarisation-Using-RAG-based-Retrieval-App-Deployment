@@ -1,4 +1,5 @@
-import os
+import json
 
-def get_env_variable(var_name):
-    return os.getenv(var_name, "default_value")
+def load_config(config_path):
+    with open(config_path, 'r') as f:
+        return json.load(f)
