@@ -1,20 +1,36 @@
-import faiss
+from transformers import AutoTokenizer, AutoModel
+import torch
 import numpy as np
-from sentence_transformers import SentenceTransformer
 
-class FAISSRetriever:
-    def __init__(self, embedding_model='all-MiniLM-L6-v2'):
-        self.model = SentenceTransformer(embedding_model)
-        self.index = None
+class TransformerRetriever:
+    def __init__(self, model_name='sentence-transformers/all-MiniLM-L6-v2'):
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model = AutoModel.from_pretrained(model_name)
+        self.documents = []
+        self.embeddings = None
+
+    def embed_texts(self, texts):
+        tokens = self.tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
+        with torch.no_grad():
+            model_output = self.model(**tokens)
+        embeddings = self.mean_pooling(model_output, tokens['attention_mask'])
+        return embeddings.cpu().numpy()
+
+    @staticmethod
+    def mean_pooling(model_output, attention_mask):
+        # Apply mean pooling to transformer outputs
+        token_embeddings = model_output.last_hidden_state
+        input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size())
+        return torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
 
     def build_index(self, documents):
-        embeddings = self.model.encode(documents)
-        dimension = embeddings.shape[1]
-        self.index = faiss.IndexFlatL2(dimension)
-        self.index.add(np.array(embeddings))
         self.documents = documents
+        self.embeddings = self.embed_texts(documents)
 
     def retrieve(self, query, top_k=5):
-        query_embedding = self.model.encode([query])
-        distances, indices = self.index.search(np.array(query_embedding), k=top_k)
-        return [(self.documents[i], distances[0][idx]) for idx, i in enumerate(indices[0])]
+        query_embedding = self.embed_texts([query])[0]
+        scores = np.dot(self.embeddings, query_embedding)  # Compute similarity (dot product)
+        top_k_indices = np.argsort(scores)[-top_k:][::-1]  # Get top-k indices (sorted by score)
+        return [(self.documents[i], scores[i]) for i in top_k_indices]
+
+
