@@ -1,5 +1,8 @@
-from bm25 import BM25Retriever
-from faiss import FAISSRetriever
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from retrieval.bm25 import BM25Retriever
+from retrieval.faiss import FAISSRetriever
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 
