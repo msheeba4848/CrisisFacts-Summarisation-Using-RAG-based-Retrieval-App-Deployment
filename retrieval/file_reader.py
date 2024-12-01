@@ -23,8 +23,6 @@ def read_from_json(file_path, key='text'):
 
 # Example usage:
 
-
-
 directory_path = "path/to/your/documents"
 documents = read_documents_from_directory(directory_path)
 # documents = read_documents_from_csv(file_path, column_name='content')
