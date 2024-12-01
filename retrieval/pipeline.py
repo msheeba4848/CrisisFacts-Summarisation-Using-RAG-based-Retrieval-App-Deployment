@@ -1,9 +1,5 @@
-import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from retrieval.bm25 import BM25Retriever
-from retrieval.faiss import FAISSRetriever
-
+from bm25 import BM25Retriever
+from faiss import FAISSRetriever
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 
@@ -31,3 +27,8 @@ class TwoStagePipeline:
         # Stage 2: FAISS Retrieval
         self.faiss_retriever.build_index(top_docs)
         return self.faiss_retriever.retrieve(query, top_k=faiss_top_k)
+
+# The TwoStagePipeline class combines two powerful information retrieval techniques, BM25 and FAISS, into a pipeline.
+# It leverages BM25 for initial filtering of documents based on keyword matching,
+# followed by FAISS for fine-grained semantic search on the top candidates. Here's how this works in detail:
+
