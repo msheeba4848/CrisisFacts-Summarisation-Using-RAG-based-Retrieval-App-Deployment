@@ -1,0 +1,39 @@
+project_name/
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.md
+│   │   └── feature_request.md
+│   ├── workflows/
+│       ├── ci.yml         # GitHub Actions workflow for CI
+│       └── linting.yml    # GitHub Actions for code linting
+├── data/
+│   ├── raw/               # Placeholder for raw data (use LFS or provide a link in README)
+│   └── processed/         # Placeholder for preprocessed data
+├── docs/
+│   ├── architecture_diagram.png  # Diagram showing program architecture
+│   └── discussion.pdf     # Analysis document with comments, visualizations, etc.
+├── src/
+│   ├── __init__.py        # Initializes the Python package
+│   ├── main.py            # Entry point for the package
+│   ├── preprocessing.py   # Data preprocessing logic
+│   ├── retrieval.py       # Retrieval system logic
+│   ├── evaluation.py      # Evaluation metrics and logic
+│   ├── utils.py           # Utility functions
+│   └── config.py          # Configuration settings
+├── tests/
+│   ├── __init__.py
+│   ├── test_preprocessing.py
+│   ├── test_retrieval.py
+│   └── test_utils.py
+├── docker/
+│   ├── Dockerfile         # Dockerfile for the main application
+│   ├── docker-compose.yml # Docker Compose file to manage services
+│   └── requirements.txt   # Requirements specific to the container
+├── .dockerignore
+├── .gitignore
+├── LICENSE
+├── README.md              # Project overview, installation guide, usage instructions
+├── pyproject.toml         # Python package configuration
+├── setup.cfg              # Configuration for linters and formatters
+├── environment.yml        # Environment configuration file for dependencies
+└── requirements.txt       # Package dependencies
