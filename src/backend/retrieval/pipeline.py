@@ -2,8 +2,8 @@ import os
 import sys
 from transformers import AutoTokenizer
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from src.backend.retrieval.bm25 import BM25Retriever
-from src.backend.retrieval.faiss import TransformerRetriever
+from retrieval.bm25 import BM25Retriever
+from retrieval.faiss import TransformerRetriever
 
 
 def preprocess_documents(documents, model_name='bert-base-uncased'):
