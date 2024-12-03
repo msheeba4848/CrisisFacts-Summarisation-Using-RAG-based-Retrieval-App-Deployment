@@ -2,8 +2,8 @@ import os
 import sys
 from transformers import AutoTokenizer
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from retrieval.bm25 import BM25Retriever
-from retrieval.faiss import TransformerRetriever
+from src.backend.retrieval.bm25 import BM25Retriever
+from src.backend.retrieval.transformer import TransformerRetrieverANN
 
 
 def preprocess_documents(documents, model_name='bert-base-uncased'):
@@ -19,7 +19,7 @@ class TwoStagePipeline:
     def __init__(self, documents, model_name='bert-base-uncased'):
         self.documents = documents
         self.bm25_retriever = BM25Retriever(documents, model_name=model_name)
-        self.faiss_retriever = TransformerRetriever()
+        self.faiss_retriever = TransformerRetrieverANN()
 
     def run(self, query, bm25_top_k=20, faiss_top_k=5):
         # Stage 1: BM25 Retrieval
