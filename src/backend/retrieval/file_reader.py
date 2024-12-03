@@ -2,14 +2,6 @@
 import os
 import pandas as pd
 import json
-from transformers import AutoTokenizer
-from nltk.tokenize import word_tokenize
-from nltk.stem import WordNetLemmatizer
-import nltk
-import re
-nltk.download('punkt')
-nltk.download('wordnet')
-nltk.download('omw-1.4')
 
 def read_from_directory(directory_path):
     documents = []

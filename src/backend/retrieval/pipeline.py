@@ -1,25 +1,15 @@
 import os
 import sys
-from transformers import AutoTokenizer
-from nltk.tokenize import word_tokenize
-from nltk.stem import WordNetLemmatizer
-import nltk
-import re
+import spacy
 import pandas as pd
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.backend.retrieval.bm25 import BM25Retriever
 from src.backend.retrieval.transformer import TransformerRetrieverANN
-
 import re
-from nltk.tokenize import word_tokenize
-from nltk.stem import WordNetLemmatizer
 from transformers import AutoTokenizer
-import nltk
 
-# Download necessary NLTK resources
-nltk.download('punkt')
-nltk.download('wordnet')
-nltk.download('omw-1.4')
+
+nlp = spacy.load("en_core_web_sm")
 
 
 def preprocess_text_column(text_series, model_name='bert-base-uncased'):
@@ -34,18 +24,20 @@ def preprocess_text_column(text_series, model_name='bert-base-uncased'):
         pd.Series: A pandas Series with preprocessed text.
     """
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    lemmatizer = WordNetLemmatizer()
 
     def preprocess_line(line):
         if not isinstance(line, str):
             return ""
         # Remove non-alphabetic characters
         cleaned_line = re.sub(r'[^a-zA-Z\s]', '', line)
-        # Tokenize and lemmatize
-        tokens = word_tokenize(cleaned_line.lower())
-        lemmatized_tokens = [lemmatizer.lemmatize(token) for token in tokens]
+
+        # Process the text with spacy for lemmatization
+        doc = nlp(cleaned_line.lower())
+        lemmatized_tokens = [token.lemma_ for token in doc if not token.is_stop]
+
         # Apply tokenizer
-        return ' '.join(tokenizer.tokenize(' '.join(lemmatized_tokens)))
+        tokenized_text = ' '.join(tokenizer.tokenize(' '.join(lemmatized_tokens)))
+        return tokenized_text
 
     return text_series.apply(preprocess_line)
 
