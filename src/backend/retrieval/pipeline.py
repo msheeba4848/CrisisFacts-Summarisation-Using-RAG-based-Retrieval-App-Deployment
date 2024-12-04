@@ -10,28 +10,28 @@ from transformers import AutoTokenizer, AutoModel
 import torch
 nlp = spacy.load("en_core_web_sm")
 
-def preprocess_text_column(text_series, model_name='allenai/longformer-base-4096'):
+def preprocess_documents(text_series, model_name='bert-base-uncased'):
     """
     Preprocess a pandas Series of text: remove non-English words, tokenize, and lemmatize.
-    Supports sequences up to the Longformer limit (4096 tokens) and uses GPU for processing.
+    Prepares the output for use with TwoStagePipeline (raw text + tokenized text).
 
     Args:
         text_series (pd.Series): A pandas Series containing text data.
         model_name (str): Transformer model name for tokenization.
 
     Returns:
-        pd.Series: A pandas Series with processed text embeddings or tokenized output.
+        list: A list of preprocessed raw text (for FAISS).
+        list: A list of tokenized text (for BM25).
     """
-    # Check for GPU availability
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    # Load Longformer tokenizer and model
+    # Load tokenizer for BM25
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModel.from_pretrained(model_name).to(device)
+
+    raw_texts = []  # For FAISS
+    tokenized_texts = []  # For BM25
 
     def preprocess_line(line):
         if not isinstance(line, str):
-            return ""
+            return "", []
         try:
             # Remove non-alphabetic characters
             cleaned_line = re.sub(r'[^a-zA-Z\s]', '', line)
@@ -40,26 +40,23 @@ def preprocess_text_column(text_series, model_name='allenai/longformer-base-4096
             doc = nlp(cleaned_line.lower())
             lemmatized_tokens = [token.lemma_ for token in doc if not token.is_stop]
 
-            # Tokenize and move tensors to GPU
-            inputs = tokenizer(
-                ' '.join(lemmatized_tokens),
-                return_tensors="pt",
-                truncation=True,
-                max_length=4096
-            ).to(device)
+            # Join lemmatized tokens to form the raw text
+            raw_text = ' '.join(lemmatized_tokens)
 
-            # Process with Longformer model
-            outputs = model(**inputs)
+            # Tokenize for BM25
+            tokenized_text = tokenizer.tokenize(raw_text)
 
-            # Use the last hidden state as the processed output
-            # Convert it back to CPU and reduce dimensions if needed
-            return outputs.last_hidden_state.mean(dim=1).cpu().numpy()
+            return raw_text, tokenized_text
         except Exception as e:
             print(f"Error processing line: {line}. Error: {e}")
-            return None
+            return "", []
 
-    # Apply preprocessing line by line
-    return text_series.apply(preprocess_line)
+    for line in text_series:
+        raw_text, tokenized_text = preprocess_line(line)
+        raw_texts.append(raw_text)
+        tokenized_texts.append(tokenized_text)
+
+    return raw_texts, tokenized_texts
 
 
 class TwoStagePipeline:
