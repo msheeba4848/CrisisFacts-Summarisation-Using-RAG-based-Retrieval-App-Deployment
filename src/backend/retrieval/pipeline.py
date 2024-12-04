@@ -10,53 +10,73 @@ from transformers import AutoTokenizer, AutoModel
 import torch
 nlp = spacy.load("en_core_web_sm")
 
-def preprocess_documents(text_series, model_name='bert-base-uncased'):
+
+def preprocess_documents(text_series, model_name="bert-base-uncased", batch_size=32):
     """
-    Preprocess a pandas Series of text: remove non-English words, tokenize, and lemmatize.
-    Prepares the output for use with TwoStagePipeline (raw text + tokenized text).
+    Preprocess a pandas Series of text with GPU acceleration:
+    - Removes non-English words.
+    - Tokenizes and lemmatizes.
+    - Generates embeddings in batches using the GPU.
 
     Args:
         text_series (pd.Series): A pandas Series containing text data.
         model_name (str): Transformer model name for tokenization.
+        batch_size (int): Number of documents to process per batch.
 
     Returns:
         list: A list of preprocessed raw text (for FAISS).
         list: A list of tokenized text (for BM25).
+        list: A list of embeddings for ANN retrieval.
     """
-    # Load tokenizer for BM25
+    # Check for GPU availability
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    # Load tokenizer and model
     tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModel.from_pretrained(model_name).to(device)
 
     raw_texts = []  # For FAISS
     tokenized_texts = []  # For BM25
+    embeddings = []  # For ANN
 
     def preprocess_line(line):
         if not isinstance(line, str):
             return "", []
-        try:
-            # Remove non-alphabetic characters
-            cleaned_line = re.sub(r'[^a-zA-Z\s]', '', line)
+        # Remove non-alphabetic characters
+        cleaned_line = re.sub(r"[^a-zA-Z\s]", "", line)
 
-            # Process the text with Spacy for lemmatization
-            doc = nlp(cleaned_line.lower())
-            lemmatized_tokens = [token.lemma_ for token in doc if not token.is_stop]
+        # Process the text with Spacy for lemmatization
+        doc = nlp(cleaned_line.lower())
+        lemmatized_tokens = [token.lemma_ for token in doc if not token.is_stop]
 
-            # Join lemmatized tokens to form the raw text
-            raw_text = ' '.join(lemmatized_tokens)
+        # Generate raw text and tokenized text
+        raw_text = " ".join(lemmatized_tokens)
+        tokenized_text = tokenizer.tokenize(raw_text)
 
-            # Tokenize for BM25
-            tokenized_text = tokenizer.tokenize(raw_text)
+        return raw_text, tokenized_text
 
-            return raw_text, tokenized_text
-        except Exception as e:
-            print(f"Error processing line: {line}. Error: {e}")
-            return "", []
+    # Preprocess all lines
+    preprocessed_data = [preprocess_line(line) for line in text_series]
 
-    for line in text_series:
-        raw_text, tokenized_text = preprocess_line(line)
-        raw_texts.append(raw_text)
-        tokenized_texts.append(tokenized_text)
+    # Extract raw and tokenized text
+    raw_texts = [raw for raw, _ in preprocessed_data]
+    tokenized_texts = [tokens for _, tokens in preprocessed_data]
 
-    return raw_texts, tokenized_texts
+    # Batch process embeddings
+    for i in range(0, len(raw_texts), batch_size):
+        batch_texts = raw_texts[i : i + batch_size]
+        inputs = tokenizer(
+            batch_texts, padding=True, truncation=True, return_tensors="pt", max_length=512
+        ).to(device)
+
+        with torch.no_grad():
+            model_output = model(**inputs)
+            batch_embeddings = model_output.last_hidden_state.mean(dim=1).cpu().tolist()
+
+        embeddings.extend(batch_embeddings)
+
+    return raw_texts, tokenized_texts, embeddings
+
 
 
 class TwoStagePipeline:
