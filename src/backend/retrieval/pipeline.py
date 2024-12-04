@@ -1,7 +1,6 @@
 import os
 import sys
 import spacy
-import pandas as pd
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.backend.retrieval.bm25 import BM25Retriever
 from src.backend.retrieval.transformer import TransformerRetrieverANN
@@ -9,28 +8,26 @@ import re
 from transformers import AutoTokenizer, AutoModel
 
 import torch
-
-# Load the model and tokenizer
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-tokenizer = AutoTokenizer.from_pretrained("allenai/longformer-base-4096")
-model = AutoModel.from_pretrained("allenai/longformer-base-4096").to(device)
 nlp = spacy.load("en_core_web_sm")
-
 
 def preprocess_text_column(text_series, model_name='allenai/longformer-base-4096'):
     """
     Preprocess a pandas Series of text: remove non-English words, tokenize, and lemmatize.
-    Supports sequences up to the Longformer limit (4096 tokens).
+    Supports sequences up to the Longformer limit (4096 tokens) and uses GPU for processing.
 
     Args:
         text_series (pd.Series): A pandas Series containing text data.
         model_name (str): Transformer model name for tokenization.
 
     Returns:
-        pd.Series: A pandas Series with preprocessed text.
+        pd.Series: A pandas Series with processed text embeddings or tokenized output.
     """
-    # Load Longformer tokenizer
+    # Check for GPU availability
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    # Load Longformer tokenizer and model
     tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModel.from_pretrained(model_name).to(device)
 
     def preprocess_line(line):
         if not isinstance(line, str):
@@ -43,13 +40,25 @@ def preprocess_text_column(text_series, model_name='allenai/longformer-base-4096
             doc = nlp(cleaned_line.lower())
             lemmatized_tokens = [token.lemma_ for token in doc if not token.is_stop]
 
-            # Tokenize with Longformer tokenizer
-            tokens = tokenizer.tokenize(' '.join(lemmatized_tokens))
-            return ' '.join(tokens)
+            # Tokenize and move tensors to GPU
+            inputs = tokenizer(
+                ' '.join(lemmatized_tokens),
+                return_tensors="pt",
+                truncation=True,
+                max_length=4096
+            ).to(device)
+
+            # Process with Longformer model
+            outputs = model(**inputs)
+
+            # Use the last hidden state as the processed output
+            # Convert it back to CPU and reduce dimensions if needed
+            return outputs.last_hidden_state.mean(dim=1).cpu().numpy()
         except Exception as e:
             print(f"Error processing line: {line}. Error: {e}")
-            return ""
+            return None
 
+    # Apply preprocessing line by line
     return text_series.apply(preprocess_line)
 
 
