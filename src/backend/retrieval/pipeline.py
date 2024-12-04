@@ -1,32 +1,29 @@
 import os
 import sys
-import spacy
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.backend.retrieval.bm25 import BM25Retriever
 from src.backend.retrieval.transformer import TransformerRetrieverANN
+
 import re
+import torch
 from transformers import AutoTokenizer, AutoModel
 
-import torch
-nlp = spacy.load("en_core_web_sm")
 
-
-def preprocess_documents(text_series, model_name="bert-base-uncased", batch_size=32):
+def preprocess_documents(text_series, model_name="bert-base-uncased", batch_size=64):
     """
-    Preprocess a pandas Series of text with GPU acceleration:
-    - Removes non-English words.
-    - Tokenizes and lemmatizes.
-    - Generates embeddings in batches using the GPU.
+    Fully GPU-accelerated text preprocessing and embedding generation:
+    - Tokenizes and processes text in batches on the GPU.
+    - Replaces CPU-bound Spacy operations.
 
     Args:
         text_series (pd.Series): A pandas Series containing text data.
-        model_name (str): Transformer model name for tokenization.
+        model_name (str): Transformer model name for tokenization and embedding.
         batch_size (int): Number of documents to process per batch.
 
     Returns:
-        list: A list of preprocessed raw text (for FAISS).
-        list: A list of tokenized text (for BM25).
-        list: A list of embeddings for ANN retrieval.
+        list: Raw cleaned text (for FAISS).
+        list: Tokenized text (for BM25).
+        list: Embeddings for ANN retrieval.
     """
     # Check for GPU availability
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -39,44 +36,35 @@ def preprocess_documents(text_series, model_name="bert-base-uncased", batch_size
     tokenized_texts = []  # For BM25
     embeddings = []  # For ANN
 
-    def preprocess_line(line):
+    # Preprocess text: Remove non-alphabetic characters
+    def clean_text(line):
         if not isinstance(line, str):
-            return "", []
-        # Remove non-alphabetic characters
-        cleaned_line = re.sub(r"[^a-zA-Z\s]", "", line)
+            return ""
+        return re.sub(r"[^a-zA-Z\s]", "", line).lower()
 
-        # Process the text with Spacy for lemmatization
-        doc = nlp(cleaned_line.lower())
-        lemmatized_tokens = [token.lemma_ for token in doc if not token.is_stop]
+    # Clean all lines
+    raw_texts = text_series.apply(clean_text).tolist()
 
-        # Generate raw text and tokenized text
-        raw_text = " ".join(lemmatized_tokens)
-        tokenized_text = tokenizer.tokenize(raw_text)
-
-        return raw_text, tokenized_text
-
-    # Preprocess all lines
-    preprocessed_data = [preprocess_line(line) for line in text_series]
-
-    # Extract raw and tokenized text
-    raw_texts = [raw for raw, _ in preprocessed_data]
-    tokenized_texts = [tokens for _, tokens in preprocessed_data]
-
-    # Batch process embeddings
+    # Tokenize and embed in batches
     for i in range(0, len(raw_texts), batch_size):
-        batch_texts = raw_texts[i : i + batch_size]
+        batch_texts = raw_texts[i: i + batch_size]
+
+        # Tokenize batch
         inputs = tokenizer(
             batch_texts, padding=True, truncation=True, return_tensors="pt", max_length=512
         ).to(device)
 
         with torch.no_grad():
+            # Generate embeddings on the GPU
             model_output = model(**inputs)
-            batch_embeddings = model_output.last_hidden_state.mean(dim=1).cpu().tolist()
+            batch_embeddings = model_output.last_hidden_state.mean(dim=1)  # Mean pooling
+            embeddings.extend(batch_embeddings.cpu().numpy())  # Move to CPU
 
-        embeddings.extend(batch_embeddings)
+        # Store tokenized text for BM25
+        batch_tokens = [tokenizer.tokenize(text) for text in batch_texts]
+        tokenized_texts.extend(batch_tokens)
 
     return raw_texts, tokenized_texts, embeddings
-
 
 
 class TwoStagePipeline:
