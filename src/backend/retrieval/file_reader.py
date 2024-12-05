@@ -2,6 +2,7 @@
 import os
 import pandas as pd
 import json
+import re
 
 def read_from_directory(directory_path):
     documents = []
@@ -12,31 +13,14 @@ def read_from_directory(directory_path):
     return documents
 
 
-def read_csv(file_path, doc_column, label_column):
-    """
-    Reads a CSV file and removes rows with missing values in the document or label columns.
-
-    Args:
-        file_path (str): Path to the CSV file.
-        doc_column (str): Name of the column containing documents.
-        label_column (str): Name of the column containing labels.
-
-    Returns:
-        tuple: A tuple containing:
-            - documents (list): List of document strings.
-            - labels (list): List of corresponding labels.
-    """
-    # Load the CSV
+def read_csv(file_path):
+    '''
+    Reads the data file, selects necessary columns, and cleans the text.
+    '''
     df = pd.read_csv(file_path)
-
-    # Drop rows with missing values in the specified columns
-    df = df.dropna(subset=[doc_column, label_column])
-
-    # Extract documents and labels
-    documents = df[doc_column].astype(str).tolist()
-    labels = df[label_column].astype(str).tolist()
-
-    return documents, labels
+    df = df[['cleaned_text', 'class_label']].dropna()
+    df['cleaned_text'] = df['cleaned_text'].apply(lambda x: re.sub(r'\s+', ' ', str(x).strip()))
+    return df
 
 
 
