@@ -12,33 +12,39 @@ def read_from_directory(directory_path):
     return documents
 
 
-def read_csv(file_path, text_column=None):
+def read_csv(file_path, doc_column, label_column):
     """
-    Reads a CSV file and extracts the specified text column.
+    Reads a CSV file and extracts documents and labels for use with train_test_split.
 
     Args:
         file_path (str): Path to the CSV file.
-        text_column (str): Name of the column containing text.
-                           If None, the function will auto-detect the first text-based column.
+        doc_column (str): Name of the column containing documents.
+        label_column (str): Name of the column containing labels.
 
     Returns:
-        pd.Series: The specified text column as a pandas Series.
+        tuple: A tuple containing:
+            - documents (list): List of document strings.
+            - labels (list): List of corresponding labels.
     """
     # Load the CSV
     df = pd.read_csv(file_path)
 
-    # Auto-detect text column if not provided
-    if text_column is None:
-        text_column = next((col for col in df.columns if df[col].dtype == 'object'), None)
-        if text_column is None:
-            raise ValueError("No suitable text column found in the dataset.")
-        print(f"No text_column specified. Using '{text_column}' as the text column.")
+    # Ensure the specified columns exist
+    if doc_column not in df.columns:
+        raise ValueError(f"The column '{doc_column}' is not found in the dataset.")
+    if label_column not in df.columns:
+        raise ValueError(f"The column '{label_column}' is not found in the dataset.")
 
-    # Ensure the text column exists
-    if text_column not in df.columns:
-        raise ValueError(f"The column '{text_column}' is not found in the dataset.")
+    # Extract documents and labels
+    documents = df[doc_column].dropna().astype(str).tolist()
+    labels = df[label_column].dropna().astype(str).tolist()
 
-    return df[text_column]
+    # Ensure the lengths match
+    if len(documents) != len(labels):
+        raise ValueError("The document and label columns have mismatched lengths.")
+
+    return documents, labels
+
 
 
 def read_from_json(file_path, key='text'):
