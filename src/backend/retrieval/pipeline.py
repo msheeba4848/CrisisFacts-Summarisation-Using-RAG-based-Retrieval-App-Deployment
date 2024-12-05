@@ -4,79 +4,51 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from src.backend.retrieval.bm25 import BM25Retriever
 from src.backend.retrieval.transformer import TransformerRetrieverANN
 
-import re
 import torch
-from transformers import AutoTokenizer, AutoModel
+from sentence_transformers import SentenceTransformer
 
-def preprocess_documents(text_list, model_name="bert-base-uncased", batch_size=64):
+
+def preprocess_documents(documents, model_name='sentence-transformers/all-MiniLM-L6-v2'):
     """
-    Fully GPU-accelerated text preprocessing and embedding generation:
-    - Tokenizes and processes text in batches on the GPU.
-    - Replaces CPU-bound Spacy operations.
+    Preprocess documents by generating embeddings using a Transformer model with GPU support.
 
     Args:
-        text_list (list): A list of strings containing text data.
-        model_name (str): Transformer model name for tokenization and embedding.
-        batch_size (int): Number of documents to process per batch.
+        documents (list of str): List of text documents to preprocess.
+        model_name (str): Name of the Transformer model (default: MiniLM).
 
     Returns:
-        list: Raw cleaned text (for FAISS).
-        list: Tokenized text (for BM25).
-        list: Embeddings for ANN retrieval.
+        embeddings (numpy.ndarray): Array of embeddings for the documents.
+        model (SentenceTransformer): The loaded Transformer model (useful for later queries).
     """
-    # Check for GPU availability
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # Determine device (GPU or CPU)
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    print(f"Using device: {device}")
 
-    # Load tokenizer and model
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModel.from_pretrained(model_name).to(device)
+    # Load Transformer model
+    model = SentenceTransformer(model_name, device=device)
 
-    raw_texts = []  # For FAISS
-    tokenized_texts = []  # For BM25
-    embeddings = []  # For ANN
+    # Generate embeddings
+    print("Generating embeddings...")
+    embeddings = model.encode(documents, show_progress_bar=True)
 
-    # Preprocess text: Remove non-alphabetic characters
-    def clean_text(line):
-        if not isinstance(line, str):
-            return ""
-        return re.sub(r"[^a-zA-Z\s]", "", line).lower()
-
-    # Clean all lines
-    raw_texts = [clean_text(line) for line in text_list]
-
-    # Tokenize and embed in batches
-    for i in range(0, len(raw_texts), batch_size):
-        batch_texts = raw_texts[i: i + batch_size]
-
-        # Tokenize batch
-        inputs = tokenizer(
-            batch_texts, padding=True, truncation=True, return_tensors="pt", max_length=512
-        ).to(device)
-
-        with torch.no_grad():
-            # Generate embeddings on the GPU
-            model_output = model(**inputs)
-            batch_embeddings = model_output.last_hidden_state.mean(dim=1)  # Mean pooling
-            embeddings.extend(batch_embeddings.cpu().numpy())  # Move to CPU
-
-        # Store tokenized text for BM25
-        batch_tokens = [tokenizer.tokenize(text) for text in batch_texts]
-        tokenized_texts.extend(batch_tokens)
-
-    return raw_texts, tokenized_texts, embeddings
+    return embeddings, model
 
 
 class TwoStagePipeline:
-    def __init__(self, documents, model_name='bert-base-uncased'):
+    def __init__(self, documents, model_name="bert-base-uncased"):
         self.documents = documents
         self.bm25_retriever = BM25Retriever(documents, model_name=model_name)
-        self.TransformerRetrieverANN = TransformerRetrieverANN()
+        self.ann_retriever = TransformerRetrieverANN(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
-    def run(self, query, bm25_top_k=20, faiss_top_k=5):
-        # Stage 1: BM25 Retrieval
-        bm25_results = self.bm25_retriever.retrieve(query, top_k=bm25_top_k)
-        top_docs = [doc[0] for doc in bm25_results]
+    def run(self, queries, bm25_top_k=20, faiss_top_k=5):
+        bm25_results = [self.bm25_retriever.retrieve(query, top_k=bm25_top_k) for query in queries]
+        bm25_candidates = [[doc for doc, _ in results] for results in bm25_results]
 
-        # Stage 2: Transformer Retriever ANN
-        self.TransformerRetrieverANN.build_index(top_docs)
-        return self.TransformerRetrieverANN.retrieve(query, top_k=faiss_top_k)
+        # Flatten candidates and build FAISS index
+        flat_candidates = [doc for candidates in bm25_candidates for doc in candidates]
+        self.ann_retriever.build_index(flat_candidates)
+
+        # Run FAISS retrieval
+        faiss_results = self.ann_retriever.retrieve(queries, top_k=faiss_top_k)
+        return faiss_results
+
