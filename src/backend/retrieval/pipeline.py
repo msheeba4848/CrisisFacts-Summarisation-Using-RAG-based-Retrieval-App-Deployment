@@ -8,15 +8,14 @@ import re
 import torch
 from transformers import AutoTokenizer, AutoModel
 
-
-def preprocess_documents(text_series, model_name="bert-base-uncased", batch_size=64):
+def preprocess_documents(text_list, model_name="bert-base-uncased", batch_size=64):
     """
     Fully GPU-accelerated text preprocessing and embedding generation:
     - Tokenizes and processes text in batches on the GPU.
     - Replaces CPU-bound Spacy operations.
 
     Args:
-        text_series (pd.Series): A pandas Series containing text data.
+        text_list (list): A list of strings containing text data.
         model_name (str): Transformer model name for tokenization and embedding.
         batch_size (int): Number of documents to process per batch.
 
@@ -43,7 +42,7 @@ def preprocess_documents(text_series, model_name="bert-base-uncased", batch_size
         return re.sub(r"[^a-zA-Z\s]", "", line).lower()
 
     # Clean all lines
-    raw_texts = text_series.apply(clean_text).tolist()
+    raw_texts = [clean_text(line) for line in text_list]
 
     # Tokenize and embed in batches
     for i in range(0, len(raw_texts), batch_size):

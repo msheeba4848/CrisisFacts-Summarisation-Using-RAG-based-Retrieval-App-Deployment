@@ -14,7 +14,7 @@ def read_from_directory(directory_path):
 
 def read_csv(file_path, doc_column, label_column):
     """
-    Reads a CSV file and extracts documents and labels for use with train_test_split.
+    Reads a CSV file and removes rows with missing values in the document or label columns.
 
     Args:
         file_path (str): Path to the CSV file.
@@ -29,19 +29,12 @@ def read_csv(file_path, doc_column, label_column):
     # Load the CSV
     df = pd.read_csv(file_path)
 
-    # Ensure the specified columns exist
-    if doc_column not in df.columns:
-        raise ValueError(f"The column '{doc_column}' is not found in the dataset.")
-    if label_column not in df.columns:
-        raise ValueError(f"The column '{label_column}' is not found in the dataset.")
+    # Drop rows with missing values in the specified columns
+    df = df.dropna(subset=[doc_column, label_column])
 
     # Extract documents and labels
-    documents = df[doc_column].dropna().astype(str).tolist()
-    labels = df[label_column].dropna().astype(str).tolist()
-
-    # Ensure the lengths match
-    if len(documents) != len(labels):
-        raise ValueError("The document and label columns have mismatched lengths.")
+    documents = df[doc_column].astype(str).tolist()
+    labels = df[label_column].astype(str).tolist()
 
     return documents, labels
 
