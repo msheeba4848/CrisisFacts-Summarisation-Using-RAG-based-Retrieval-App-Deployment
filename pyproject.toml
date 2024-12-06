@@ -7,11 +7,8 @@ license = "MIT"
 readme = "README.md"
 packages = [{include = "final_project", from = "src"}]
 
-
 [tool.poetry.dependencies]
 python = "^3.10"
-pytest = "^8.3"
-pytest-cov = "^6.0"
 rank-bm25 = "^0.2.2"
 nltk = "^3.9.1"
 numpy = "^1.25.2"
@@ -27,17 +24,11 @@ sphinx = "<6.0"
 sphinx-rtd-theme = "^1.3"
 myst_nb = "<0.18"
 pandas = "^1.3"
-
-[tool.poetry.group.dev.dependencies]
 sphinx-autoapi = "<2.0"
 
-[tool.semantic_release]
-version_toml = [
-    "pyproject.toml:tool.poetry.version",
-]                                                    # version location
-branch = "main"                                      # branch to make releases of
-changelog_file = "CHANGELOG.md"                      # changelog file
-build_command = "pip install poetry && poetry build" # build dists 
-
 [build-system]
-requires = ["poetry-cor
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+final_project = "final_project.main:main"
