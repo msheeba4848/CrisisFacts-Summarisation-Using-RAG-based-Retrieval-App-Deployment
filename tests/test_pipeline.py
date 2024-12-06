@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
-from retrieval.pipeline import TwoStagePipeline
+from final_project.pipeline import TwoStagePipeline
 
 
 def test_pipeline():

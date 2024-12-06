@@ -10,6 +10,8 @@ packages = [{include = "final_project", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+pytest = "^8.3"
+pytest-cov = "^6.0"
 rank-bm25 = "^0.2.2"
 nltk = "^3.9.1"
 numpy = "^1.25.2"
@@ -38,8 +40,4 @@ changelog_file = "CHANGELOG.md"                      # changelog file
 build_command = "pip install poetry && poetry build" # build dists 
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.scripts]
-final_project = "final_project.main:main"
+requires = ["poetry-cor
