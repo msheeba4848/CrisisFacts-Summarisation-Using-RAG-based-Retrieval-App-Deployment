@@ -142,4 +142,6 @@ dmypy.json
 .DS_Store
 
 .vscode/
+
+
 embeddings.npy
