@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from src.final_project.retrieval.pipeline import TwoStagePipeline
+from code.final_project import TwoStagePipeline
 
 app = Flask(__name__)
 

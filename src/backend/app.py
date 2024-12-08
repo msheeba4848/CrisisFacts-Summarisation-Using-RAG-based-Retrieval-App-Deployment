@@ -3,7 +3,7 @@ import sys
 import pandas as pd
 import numpy as np
 from rank_bm25 import BM25Okapi
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from src.backend.embedding import compute_query_embedding
 from src.backend.retrieval import retrieve_top_events
 from src.backend.summarize import summarize_texts, custom_query_summary
