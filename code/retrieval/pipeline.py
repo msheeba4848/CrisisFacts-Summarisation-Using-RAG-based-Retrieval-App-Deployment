@@ -1,8 +1,8 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from src.backend.retrieval.bm25 import BM25Retriever
-from src.backend.retrieval.transformer import TransformerRetrieverANN
+from code import BM25Retriever
+from code import TransformerRetrieverANN
 
 import torch
 from sentence_transformers import SentenceTransformer

@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from src.backend.retrieval import retrieve_documents
+from code.retrieval import retrieve_documents
 from final_project.summarization import summarize_documents
 
 app = Flask(__name__)

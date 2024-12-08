@@ -1,4 +1,3 @@
-import os
 import pandas as pd
 import os
 import sys
@@ -6,7 +5,7 @@ import sys
 # Add the root directory to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.backend.preprocessing import clean_text
+from code.preprocessing import clean_text
 
 
 BASE_DIR = "data/raw/data/"
