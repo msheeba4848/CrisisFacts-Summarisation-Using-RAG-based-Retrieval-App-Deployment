@@ -1,15 +1,9 @@
 # Main script for running the pipeline
 <<<<<<< HEAD
-from retrieval.file_reader import (
-    read_documents_from_directory,
-    read_documents_from_csv,
-    read_documents_from_json,
-)
-from final_project.pipeline import TwoStagePipeline, preprocess_documents
 =======
 
-from src.backend.retrieval.file_reader import read_from_csv
-from src.backend.retrieval.pipeline import TwoStagePipeline, preprocess_csv
+from code import read_from_csv
+from code.retrieval.pipeline import TwoStagePipeline, preprocess_csv
 >>>>>>> f94a37a569d9fe33c215e53772bfbcd2f4bc6e08
 
 # Step 1: Read documents
