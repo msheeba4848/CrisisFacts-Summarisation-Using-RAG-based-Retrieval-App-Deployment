@@ -1,6 +1,6 @@
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
-from embedding import compute_query_embedding
+from src.backend.embedding import compute_query_embedding
 
 
 def retrieve_top_events(query, bm25, embeddings, df, top_k=5, alpha=0.5):
