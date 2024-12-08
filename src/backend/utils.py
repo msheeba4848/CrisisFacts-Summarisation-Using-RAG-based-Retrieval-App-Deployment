@@ -19,7 +19,6 @@ def clean_text(text):
     return text
 
 
-
 def escape_special_chars(text):
     """Escape special characters for regex matching."""
     return re.escape(text)
