@@ -1,10 +1,7 @@
 import re
-import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
 import os
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from src.backend.embedding import compute_query_embedding
 
 
 def filter_by_class_label(df, event, class_label):
