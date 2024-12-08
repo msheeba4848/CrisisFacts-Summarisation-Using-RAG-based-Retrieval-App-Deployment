@@ -12,6 +12,7 @@ from src.backend.utils import filter_by_class_label, save_summary, humanize_labe
 
 def interactive_hybrid_summarization_with_improvements(df, bm25, embeddings):
     print("Welcome to the summarization system!")
+
     print("\nOptions:")
     print("1. Summarize based on specific event and class label")
     print("2. Generate a summary for a custom query across the dataset")

@@ -1,10 +1,14 @@
-# Use the official PostgreSQL image
 FROM postgres:14
 
 # Set environment variables
-ENV POSTGRES_USER=your_user
-ENV POSTGRES_PASSWORD=your_password
-ENV POSTGRES_DB=your_database
+ENV POSTGRES_USER=admin
+ENV POSTGRES_PASSWORD=admin
+ENV POSTGRES_DB=summarization_db
 
-# Expose the PostgreSQL port
+# Copy initialization script and CSV file into the container
+COPY ./database/init_scripts /docker-entrypoint-initdb.d/
+COPY ./data/processed/all_data_cleaned.csv /docker-entrypoint-initdb.d/all_data_cleaned.csv
+
+# Expose PostgreSQL default port
 EXPOSE 5432
+
