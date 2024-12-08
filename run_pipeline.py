@@ -1,10 +1,10 @@
 # Main script for running the pipeline
-<<<<<<< HEAD
-=======
-
-from code import read_from_csv
-from code.retrieval.pipeline import TwoStagePipeline, preprocess_csv
->>>>>>> f94a37a569d9fe33c215e53772bfbcd2f4bc6e08
+from retrieval.file_reader import (
+    read_documents_from_directory,
+    read_documents_from_csv,
+    read_documents_from_json,
+)
+from code.final_project.pipeline import TwoStagePipeline, preprocess_documents
 
 # Step 1: Read documents
 documents = read_from_csv('data/processed/all_data_cleaned.csv', column_name='cleaned_text')
