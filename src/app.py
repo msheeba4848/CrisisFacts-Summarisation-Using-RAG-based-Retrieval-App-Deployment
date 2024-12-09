@@ -3,11 +3,11 @@ import sys
 import pandas as pd
 import numpy as np
 from rank_bm25 import BM25Okapi
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from src.backend.embedding import compute_query_embedding
-from src.backend.retrieval import retrieve_top_events
-from src.backend.summarize import summarize_texts, custom_query_summary
-from src.backend.utils import filter_by_class_label, save_summary, humanize_labels, humanize_events, normalize_input
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from src.embedding import compute_query_embedding
+from src.retrieval import retrieve_top_events
+from src.summarize import summarize_texts, custom_query_summary
+from src.utils import filter_by_class_label, save_summary, humanize_labels, humanize_events, normalize_input
 
 
 def interactive_hybrid_summarization_with_improvements(df, bm25, embeddings):
@@ -78,11 +78,11 @@ def interactive_hybrid_summarization_with_improvements(df, bm25, embeddings):
 
 if __name__ == "__main__":
     # Load data
-    df = pd.read_csv("../../data/processed/all_data_cleaned.csv")
+    df = pd.read_csv("../data/processed/all_data_cleaned.csv")
     df['cleaned_text'] = df['cleaned_text'].fillna("").astype(str)
 
     # Define paths
-    embedding_path = "../../data/embeddings/embeddings.npy"
+    embedding_path = "../data/embeddings/embeddings.npy"
 
     # Get cleaned texts
     texts = df['cleaned_text'].tolist()
