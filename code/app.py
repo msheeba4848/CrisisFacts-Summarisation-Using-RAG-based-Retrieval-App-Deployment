@@ -78,11 +78,11 @@ def interactive_hybrid_summarization_with_improvements(df, bm25, embeddings):
 
 if __name__ == "__main__":
     # Load data
-    df = pd.read_csv("../data/processed/all_data_cleaned.csv")
+    df = pd.read_csv("../backend/data/processed/all_data_cleaned.csv")
     df['cleaned_text'] = df['cleaned_text'].fillna("").astype(str)
 
     # Define paths
-    embedding_path = "../data/embeddings/embeddings.npy"
+    embedding_path = "../backend/data/embeddings/embeddings.npy"
 
     # Get cleaned texts
     texts = df['cleaned_text'].tolist()
