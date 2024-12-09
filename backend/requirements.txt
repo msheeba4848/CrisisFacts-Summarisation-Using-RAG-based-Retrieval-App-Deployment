@@ -1,0 +1,10 @@
+# Backend dependencies
+flask==2.2.3               # For the backend API
+flask-cors==3.0.10         # To handle CORS for API calls
+requests==2.31.0           # For making HTTP requests
+pandas==2.1.1              # Data processing and manipulation
+numpy==1.24.4              # Numerical computations
+rank-bm25==0.2.1           # For BM25 text retrieval
+
+# Frontend dependencies (Flask-based)
+jinja2==3.1.2              # Template rendering for Flask

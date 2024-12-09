@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hybrid Summarization</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Hybrid Summarization System</h1>
+    <form id="query-form" method="POST" action="/submit_query">
+        <label for="query">Query:</label>
+        <input type="text" id="query" name="query" placeholder="Enter your query (e.g., 'earthquake rescue')" required>
+
+        <label for="option">Summarization Type:</label>
+        <select id="option" name="option">
+            <option value="1">Summarize by Event and Label</option>
+            <option value="2">Custom Query Summary</option>
+        </select>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="results"></div>
+
+    <script>
+        const form = document.getElementById('query-form');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const response = await fetch('/submit_query', {
+                method: 'POST',
+                body: formData
+            });
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            if (response.ok) {
+                const data = await response.json();
+                resultsDiv.innerHTML = `
+                    <h2>Summary</h2>
+                    ${data.event ? `<p><strong>Event:</strong> ${data.event}</p>` : ''}
+                    ${data.label ? `<p><strong>Label:</strong> ${data.label}</p>` : ''}
+                    <p><strong>Summary:</strong> ${data.summary || data.error}</p>
+                `;
+            } else {
+                const errorData = await response.json();
+                resultsDiv.innerHTML = `<p class="error">Error: ${errorData.error}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
