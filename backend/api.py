@@ -46,13 +46,13 @@ def summarize_by_event():
         if not top_events:
             return jsonify({"error": "No events found for the query"}), 404
 
-        selected_event = top_events[0]
+        selected_event = top_events[0]  # Default to the first event
         available_labels = df[df['event'] == selected_event]['class_label'].unique()
 
         if not available_labels.size:
             return jsonify({"error": "No labels available for the selected event"}), 404
 
-        selected_label = available_labels[0]
+        selected_label = available_labels[0]  # Default to the first label
         filtered_df = filter_by_class_label(df, selected_event, selected_label)
 
         if filtered_df.empty:

@@ -3,50 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hybrid Summarization</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <title>Summarization System</title>
 </head>
 <body>
-    <h1>Hybrid Summarization System</h1>
-    <form id="query-form" method="POST" action="/submit_query">
-        <label for="query">Query:</label>
-        <input type="text" id="query" name="query" placeholder="Enter your query (e.g., 'earthquake rescue')" required>
-
-        <label for="option">Summarization Type:</label>
-        <select id="option" name="option">
-            <option value="1">Summarize by Event and Label</option>
-            <option value="2">Custom Query Summary</option>
-        </select>
-
-        <button type="submit">Submit</button>
-    </form>
-
-    <div id="results"></div>
+    <div>
+        <h1>Summarization System</h1>
+        <form action="/submit_query" method="post" id="summarizationForm">
+            <label for="query">Enter your query:</label>
+            <input type="text" id="query" name="query" required>
+            <br>
+            <label for="option">Select summarization type:</label>
+            <select id="option" name="option">
+                <option value="1">Summarize by Event</option>
+                <option value="2">Custom Query Summarization</option>
+            </select>
+            <br>
+            <button type="submit">Submit</button>
+        </form>
+        <div id="response"></div>
+    </div>
 
     <script>
-        const form = document.getElementById('query-form');
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        document.getElementById('summarizationForm').addEventListener('submit', async function(event) {
+            event.preventDefault();  // Prevent default form submission behavior
+
+            const form = event.target;
             const formData = new FormData(form);
-            const response = await fetch('/submit_query', {
-                method: 'POST',
-                body: formData
-            });
+            const responseElement = document.getElementById('response');
 
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = '';
+            try {
+                const response = await fetch(form.action, {
+                    method: form.method,
+                    body: new URLSearchParams(formData)
+                });
 
-            if (response.ok) {
-                const data = await response.json();
-                resultsDiv.innerHTML = `
-                    <h2>Summary</h2>
-                    ${data.event ? `<p><strong>Event:</strong> ${data.event}</p>` : ''}
-                    ${data.label ? `<p><strong>Label:</strong> ${data.label}</p>` : ''}
-                    <p><strong>Summary:</strong> ${data.summary || data.error}</p>
-                `;
-            } else {
-                const errorData = await response.json();
-                resultsDiv.innerHTML = `<p class="error">Error: ${errorData.error}</p>`;
+                const result = await response.json();
+                if (response.ok) {
+                    responseElement.innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+                } else {
+                    responseElement.innerHTML = `<p style="color: red;">Error: ${result.error || 'Unknown error occurred'}</p>`;
+                }
+            } catch (error) {
+                responseElement.innerHTML = `<p style="color: red;">Network Error: ${error.message}</p>`;
             }
         });
     </script>
