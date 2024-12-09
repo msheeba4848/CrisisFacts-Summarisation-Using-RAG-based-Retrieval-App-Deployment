@@ -4,11 +4,15 @@ services:
   backend:
     build:
       context: ./backend
+    runtime: nvidia  # Use NVIDIA runtime for GPU
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all  # Access all available GPUs
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
     ports:
-      - "5005:5005"
+      - "5100:5002"
 
   frontend:
     build:
       context: ./frontend
     ports:
-      - "5006:5006"
+      - "5200:5003"

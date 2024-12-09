@@ -1,11 +1,8 @@
 from transformers import pipeline
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-import os
-import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from backend.src.utils import clean_text, escape_special_chars, filter_relevant_rows, normalize_query
-from backend.src.embedding import compute_query_embedding
+from src.utils import clean_text, escape_special_chars, filter_relevant_rows, normalize_query
+from src.embedding import compute_query_embedding
 
 # Load the summarizer with GPU support
 summarizer = pipeline("summarization", model="facebook/bart-large-cnn", device=0)
