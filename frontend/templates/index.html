@@ -4,22 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Summarization System</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 800px;
+            text-align: center;
+        }
+        h1 {
+            color: #2563eb;
+            margin-bottom: 20px;
+        }
+        form {
+            margin-top: 20px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 1rem;
+        }
+        button {
+            background-color: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #1d4ed8;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to the Summarization System</h1>
-
-    <h2>Option 1: Summarize Based on Event and Label</h2>
-    <form action="/get-events" method="post">
-        <label for="query">Enter Query:</label>
-        <input type="text" id="query" name="query" required>
-        <button type="submit">Get Events</button>
-    </form>
-
-    <h2>Option 2: Custom Query Summary</h2>
-    <form action="/custom-summary" method="post">
-        <label for="custom-query">Enter Custom Query:</label>
-        <input type="text" id="custom-query" name="query" required>
-        <button type="submit">Generate Summary</button>
-    </form>
+    <div class="container">
+        <h1>Welcome to the Summarization System</h1>
+        <form action="/submit" method="post">
+            <input type="text" placeholder="Type here..." required>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
 </body>
 </html>
+
