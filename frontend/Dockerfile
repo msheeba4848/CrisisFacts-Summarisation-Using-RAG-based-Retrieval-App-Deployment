@@ -11,5 +11,3 @@ COPY . .
 
 EXPOSE 5003
 CMD ["python3", "frontend.py"]
-
-

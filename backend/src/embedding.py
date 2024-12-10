@@ -2,11 +2,12 @@ from transformers import DistilBertTokenizer, DistilBertModel
 import torch
 import numpy as np
 
-device = torch.device(
-    "cuda" if torch.cuda.is_available() else
-    "mps" if torch.has_mps else
-    "cpu"
-)# Load the tokenizer and model
+if torch.backends.mps.is_built() and torch.backends.mps.is_available():
+    device = torch.device("mps")
+elif torch.cuda.is_available():
+    device = torch.device("cuda")
+else:
+    device = torch.device("cpu")
 tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
 model = DistilBertModel.from_pretrained("distilbert-base-uncased").to(device)
 
