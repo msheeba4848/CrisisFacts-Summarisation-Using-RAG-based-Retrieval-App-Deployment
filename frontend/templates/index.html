@@ -6,47 +6,20 @@
     <title>Summarization System</title>
 </head>
 <body>
-    <div>
-        <h1>Summarization System</h1>
-        <form action="/submit_query" method="post" id="summarizationForm">
-            <label for="query">Enter your query:</label>
-            <input type="text" id="query" name="query" required>
-            <br>
-            <label for="option">Select summarization type:</label>
-            <select id="option" name="option">
-                <option value="1">Summarize by Event</option>
-                <option value="2">Custom Query Summarization</option>
-            </select>
-            <br>
-            <button type="submit">Submit</button>
-        </form>
-        <div id="response"></div>
-    </div>
+    <h1>Welcome to the Summarization System</h1>
 
-    <script>
-        document.getElementById('summarizationForm').addEventListener('submit', async function(event) {
-            event.preventDefault();  // Prevent default form submission behavior
+    <h2>Option 1: Summarize Based on Event and Label</h2>
+    <form action="/get-events" method="post">
+        <label for="query">Enter Query:</label>
+        <input type="text" id="query" name="query" required>
+        <button type="submit">Get Events</button>
+    </form>
 
-            const form = event.target;
-            const formData = new FormData(form);
-            const responseElement = document.getElementById('response');
-
-            try {
-                const response = await fetch(form.action, {
-                    method: form.method,
-                    body: new URLSearchParams(formData)
-                });
-
-                const result = await response.json();
-                if (response.ok) {
-                    responseElement.innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
-                } else {
-                    responseElement.innerHTML = `<p style="color: red;">Error: ${result.error || 'Unknown error occurred'}</p>`;
-                }
-            } catch (error) {
-                responseElement.innerHTML = `<p style="color: red;">Network Error: ${error.message}</p>`;
-            }
-        });
-    </script>
+    <h2>Option 2: Custom Query Summary</h2>
+    <form action="/custom-summary" method="post">
+        <label for="custom-query">Enter Custom Query:</label>
+        <input type="text" id="custom-query" name="query" required>
+        <button type="submit">Generate Summary</button>
+    </form>
 </body>
 </html>

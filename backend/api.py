@@ -17,13 +17,13 @@ df['cleaned_text'] = df['cleaned_text'].fillna("").astype(str)
 # Define paths
 embedding_path = "data/embeddings/embeddings.npy"
 
-# Prepare embeddings
+# Get cleaned texts
 texts = df['cleaned_text'].tolist()
+
+# Check if embeddings exist
 if os.path.exists(embedding_path):
-    print("Loading existing embeddings...")
     embeddings = np.load(embedding_path)
 else:
-    print("Computing new embeddings...")
     embeddings = compute_query_embedding(texts)
     np.save(embedding_path, embeddings)
 
@@ -31,111 +31,65 @@ else:
 tokenized_corpus = [text.split() for text in df['cleaned_text']]
 bm25 = BM25Okapi(tokenized_corpus)
 
-@app.route('/summarize_by_event', methods=['POST'])
-def summarize_by_event():
-    """Summarize based on a specific event and class label."""
-    try:
-        data = request.json
-        query = data.get("query", "").strip()
-        if not query:
-            return jsonify({"error": "Query is required"}), 400
+@app.route('/events', methods=['POST'])
+def get_events():
+    query = request.json.get('query', '')
+    print(f"Received query: {query}")  # Debugging: Check the received query
 
-        normalized_query = normalize_input(query)
-        top_events = retrieve_top_events(normalized_query, bm25, embeddings, df, top_k=5, alpha=0.5)
+    normalized_query = normalize_input(query)
+    top_events = retrieve_top_events(normalized_query, bm25, embeddings, df, top_k=10, alpha=0.5)
+    human_readable_events = [humanize_events(event) for event in top_events]
+    print(f"Top events: {human_readable_events}")  # Debugging: Log the top events
 
-        if not top_events:
-            return jsonify({"error": "No events found for the query"}), 404
+    return jsonify({"events": human_readable_events})
 
-        selected_event = top_events[0]  # Default to the first event
-        available_labels = df[df['event'] == selected_event]['class_label'].unique()
 
-        if not available_labels.size:
-            return jsonify({"error": "No labels available for the selected event"}), 404
+@app.route('/labels', methods=['POST'])
+def get_labels():
+    # Receive the event from the request
+    selected_event = request.json.get('event', '').strip()
+    print(f"Received event: {selected_event}")  # Debugging log
 
-        selected_label = available_labels[0]  # Default to the first label
-        filtered_df = filter_by_class_label(df, selected_event, selected_label)
+    # Check if the event exists in the dataset
+    filtered_df = df[df['event'] == selected_event]
+    if filtered_df.empty:
+        print(f"No data found for event: {selected_event}")  # Debugging log
+        return jsonify({"error": f"No data found for event '{selected_event}'"}), 404
 
-        if filtered_df.empty:
-            return jsonify({
-                "event": humanize_events(selected_event),
-                "label": humanize_labels(selected_label),
-                "summary": "No relevant data found."
-            })
+    # Retrieve unique class labels
+    available_labels = filtered_df['class_label'].dropna().unique()
+    print(f"Available labels for event '{selected_event}': {available_labels}")  # Debugging log
 
-        summary = summarize_texts(filtered_df)
-        return jsonify({
-            "event": humanize_events(selected_event),
-            "label": humanize_labels(selected_label),
-            "summary": summary
-        })
+    # Convert labels to human-readable format
+    human_readable_labels = [humanize_labels(label) for label in available_labels]
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    # Prepare response
+    return jsonify({"labels": human_readable_labels})
 
-@app.route('/summarize_custom_query', methods=['POST'])
-def summarize_custom_query():
-    """Generate a summary for a custom query."""
-    try:
-        data = request.json
-        query = data.get("query", "").strip()
-        if not query:
-            return jsonify({"error": "Query is required"}), 400
 
-        normalized_query = normalize_input(query)
-        summary = custom_query_summary(df, bm25, embeddings, normalized_query, alpha=0.5, top_k=10)
-        return jsonify({
-            "query": query,
-            "summary": summary
-        })
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+@app.route('/summarize', methods=['POST'])
+def summarize():
+    event = request.json.get('event', '')
+    label = request.json.get('label', '')
+    print(f"Received event: {event}, label: {label}")  # Debugging: Check inputs
 
-@app.route('/select_event_label', methods=['POST'])
-def select_event_label():
-    """Allow users to select an event and label for summarization."""
-    try:
-        data = request.json
-        query = data.get("query", "").strip()
-        if not query:
-            return jsonify({"error": "Query is required"}), 400
+    filtered_df = filter_by_class_label(df, event, label)
+    if filtered_df.empty:
+        print(f"No data found for event '{event}' and label '{label}'.")  # Debugging
+        return jsonify({"error": "No relevant data found"}), 404
 
-        normalized_query = normalize_input(query)
-        top_events = retrieve_top_events(normalized_query, bm25, embeddings, df, top_k=5, alpha=0.5)
+    summary = summarize_texts(filtered_df)
+    print(f"Generated summary: {summary}")  # Debugging
+    return jsonify({"summary": summary})
 
-        if not top_events:
-            return jsonify({"error": "No events found for the query"}), 404
 
-        event_idx = int(data.get("event_index", 0))
-        if event_idx < 0 or event_idx >= len(top_events):
-            return jsonify({"error": "Invalid event index"}), 400
-
-        selected_event = top_events[event_idx]
-        available_labels = df[df['event'] == selected_event]['class_label'].unique()
-
-        label_idx = int(data.get("label_index", 0))
-        if label_idx < 0 or label_idx >= len(available_labels):
-            return jsonify({"error": "Invalid label index"}), 400
-
-        selected_label = available_labels[label_idx]
-        filtered_df = filter_by_class_label(df, selected_event, selected_label)
-
-        if filtered_df.empty:
-            return jsonify({
-                "event": humanize_events(selected_event),
-                "label": humanize_labels(selected_label),
-                "summary": "No relevant data found."
-            })
-
-        summary = summarize_texts(filtered_df)
-        return jsonify({
-            "event": humanize_events(selected_event),
-            "label": humanize_labels(selected_label),
-            "summary": summary
-        })
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+@app.route('/custom-summary', methods=['POST'])
+def custom_summary():
+    query = request.json.get('query', '')
+    normalized_query = normalize_input(query)
+    summary = custom_query_summary(df, bm25, embeddings, normalized_query, alpha=0.5, top_k=10)
+    return jsonify({"summary": summary})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5002)
