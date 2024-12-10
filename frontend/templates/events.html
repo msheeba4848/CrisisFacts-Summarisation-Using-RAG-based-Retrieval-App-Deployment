@@ -4,19 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Events</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 800px;
+        }
+        h1 {
+            color: #2563eb;
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        li:hover {
+            background-color: #eaf2ff;
+        }
+    </style>
 </head>
 <body>
-    <h1>Events for Query: {{ query }}</h1>
-    <ul>
-        {% for event in events %}
-        <li>
-            <form action="/get-labels" method="post">
-                <input type="hidden" name="event" value="{{ event }}">
-                <button type="submit">{{ event }}</button>
-            </form>
-        </li>
-        {% endfor %}
-    </ul>
-    <a href="/">Back to Home</a>
+    <div class="container">
+        <h1>Events</h1>
+        <ul>
+            <li>2013 Queensland Floods</li>
+            <li>2015 Nepal Earthquake</li>
+            <li>2013 Oklahoma Tornado</li>
+        </ul>
+    </div>
 </body>
 </html>
+
