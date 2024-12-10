@@ -5,7 +5,7 @@ description = "Research and experimental Python package for DSAN 6700 final proj
 authors = ["Isfar Baset, Ziyan Di, Sheeba Moghal, Bella Shi and Jacky Zhang"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "backend", from = "src"}]
+packages = [{include = "backend"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
