@@ -109,12 +109,6 @@ start docs\_build\html\index.html
 
 ## **Testing**
 
-### Install NLTK Dependencies
-The BM25Retriever requires the Punkt tokenizer. Run:
-```bash
-python setup_nltk.py
-```
-
 ### Run Tests
 Validate the system with `pytest`:
 ```bash
