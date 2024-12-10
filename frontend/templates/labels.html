@@ -4,48 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Labels</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f0f8ff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .container {
-            background-color: #fff;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 700px;
-            text-align: center;
-        }
-        h1 {
-            color: #2563eb;
-        }
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-        li {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            padding: 10px;
-        }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Available Labels</h1>
-        <ul>
-            <li>Not Humanitarian</li>
-            <li>Response Efforts</li>
-            <li>Donation And Volunteering</li>
-        </ul>
-    </div>
+    <h1>Labels for Event: {{ event }}</h1>
+    <ul>
+        {% for label in labels %}
+        <li>
+            <form action="/summarize" method="post">
+                <input type="hidden" name="event" value="{{ event }}">
+                <input type="hidden" name="label" value="{{ label }}">
+                <button type="submit">{{ label }}</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+    <a href="/">Back to Home</a>
 </body>
 </html>
-
