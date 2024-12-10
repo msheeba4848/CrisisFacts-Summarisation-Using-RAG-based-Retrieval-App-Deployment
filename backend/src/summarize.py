@@ -5,7 +5,7 @@ from src.utils import clean_text, escape_special_chars, filter_relevant_rows, no
 from src.embedding import compute_query_embedding
 
 # Load the summarizer with GPU support
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn", device=0)
+summarizer = pipeline("summarization", model="facebook/bart-large-cnn", device=-1)
 
 def summarize_texts(filtered_df, max_length=100, min_length=30):
     """Summarize filtered texts."""
