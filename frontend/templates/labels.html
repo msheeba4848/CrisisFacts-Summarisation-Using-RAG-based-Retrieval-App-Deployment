@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Labels</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="container">
     <h1>Labels for Event: {{ event }}</h1>
     <ul>
         {% for label in labels %}
@@ -19,5 +21,6 @@
         {% endfor %}
     </ul>
     <a href="/">Back to Home</a>
+    </div>
 </body>
 </html>
