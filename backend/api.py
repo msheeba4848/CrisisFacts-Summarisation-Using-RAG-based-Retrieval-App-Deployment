@@ -6,7 +6,7 @@ from rank_bm25 import BM25Okapi
 from src.embedding import compute_query_embedding
 from src.retrieval import retrieve_top_events
 from src.summarize import summarize_texts, custom_query_summary
-from src.utils import filter_by_class_label, save_summary, humanize_labels, humanize_events, normalize_input
+from src.utils import filter_by_class_label, save_summary, normalize_input
 
 app = Flask(__name__)
 
@@ -38,10 +38,10 @@ def get_events():
 
     normalized_query = normalize_input(query)
     top_events = retrieve_top_events(normalized_query, bm25, embeddings, df, top_k=10, alpha=0.5)
-    human_readable_events = [humanize_events(event) for event in top_events]
-    print(f"Top events: {human_readable_events}")  # Debugging: Log the top events
+    original_events = [event for event in top_events]
+    print(f"Top events: {original_events}")  # Debugging: Log the top events
 
-    return jsonify({"events": human_readable_events})
+    return jsonify({"events": original_events})
 
 
 @app.route('/labels', methods=['POST'])
@@ -60,12 +60,8 @@ def get_labels():
     available_labels = filtered_df['class_label'].dropna().unique()
     print(f"Available labels for event '{selected_event}': {available_labels}")  # Debugging log
 
-    # Convert labels to human-readable format
-    human_readable_labels = [humanize_labels(label) for label in available_labels]
-
     # Prepare response
-    return jsonify({"labels": human_readable_labels})
-
+    return jsonify({"labels": list(available_labels)})
 
 
 @app.route('/summarize', methods=['POST'])
