@@ -9,10 +9,10 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all  # Access all available GPUs
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
     ports:
-      - "5100:5002"
+      - "5200:5002"
 
   frontend:
     build:
       context: ./frontend
     ports:
-      - "5200:5003"
+      - "5300:5003"

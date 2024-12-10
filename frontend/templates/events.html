@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events</title>
+</head>
+<body>
+    <h1>Events for Query: {{ query }}</h1>
+    <ul>
+        {% for event in events %}
+        <li>
+            <form action="/get-labels" method="post">
+                <input type="hidden" name="event" value="{{ event }}">
+                <button type="submit">{{ event }}</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+    <a href="/">Back to Home</a>
+</body>
+</html>
