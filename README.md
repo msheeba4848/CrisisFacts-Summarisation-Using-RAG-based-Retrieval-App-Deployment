@@ -1,4 +1,3 @@
-
 # Final Project: Crisis Information Retrieval and Summarization
 
 A comprehensive, modular package for tackling the challenges of document retrieval and summarization in large-scale crisis-related datasets. This project is designed to help researchers, analysts, and organizations quickly access critical information during emergencies, enabling effective decision-making and resource allocation.
@@ -23,6 +22,7 @@ This project implements a robust two-stage document retrieval system combined wi
 ## **Installation**
 
 ### Using Poetry
+
 ```bash
 poetry install
 ```
@@ -31,6 +31,21 @@ poetry install
 ```bash
 pip install final_project
 ```
+
+### Using Docker
+Under Root Directory run:
+```bash 
+docker-compose up --build
+```
+
+---
+## **Usage**
+
+### **Running Docker**
+```bash
+docker-compose up
+```
+open browser and go to `http://localhost:5300/`
 
 ---
 
@@ -44,29 +59,6 @@ pip install final_project
 
 ### **Abstractive Summarization**
 - Summarizes retrieved documents for better comprehension of large datasets.
-
----
-
-## **Usage**
-
-### **Document Retrieval**
-1. Preprocess your documents using the `preprocess_documents` function.
-2. Use the `TwoStagePipeline` to retrieve relevant documents.
-
-```python
-from final_project.pipeline import TwoStagePipeline
-
-documents = ["Flooding in Texas", "Emergency response by FEMA", "Hurricane relief efforts"]
-pipeline = TwoStagePipeline(documents)
-
-results = pipeline.run("Flooding in Texas", bm25_top_k=10, faiss_top_k=5)
-print(results)
-```
-
-### **Run Pipeline Script**
-```bash
-python run_pipeline.py
-```
 
 ---
 
