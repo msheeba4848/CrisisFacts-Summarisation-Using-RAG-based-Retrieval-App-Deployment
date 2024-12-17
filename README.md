@@ -1,13 +1,15 @@
 
 # Crisis Information Retrieval and Summarization
 
+#### Project by: Isfar Baset, Ziyan Di, Sheeba Moghal, Bella Shi and Jacky Zhang
+
 A comprehensive, modular package for tackling the challenges of document retrieval and summarization in large-scale crisis-related datasets. This project is designed to help researchers, analysts, and organizations quickly access critical information during emergencies, enabling effective decision-making and resource allocation. By combining efficient retrieval techniques with advanced summarization capabilities, it empowers researchers, analysts, and organizations to quickly extract and comprehend critical information during emergencies. The system is designed to streamline access to relevant data, enabling informed decision-making and optimized resource allocation in high-pressure situations.
 
 ---
 
 ## **Overview**
 
-This project addresses the challenge often discussed in class — *"we are drowning in information, yet striving for knowledge"* — by implementing a robust two-stage document retrieval system combined with summarization capabilities. Designed to handle vast amounts of unstructured data, this solution combines traditional information retrieval techniques with modern machine learning models to extract and summarize relevant information effectively.
+This project addresses the challenge often discussed in class *"we are drowning in information, yet striving for knowledge"* by implementing a robust two-stage document retrieval system combined with summarization capabilities. Designed to handle vast amounts of unstructured data, this solution combines traditional information retrieval techniques with modern machine learning models to extract and summarize relevant information effectively.
 
 ### **Key Features**
 - **Lexical Retrieval with BM25**:
@@ -86,6 +88,11 @@ start docs\_build\html\index.html
 ```
 
 ---
+
+## User Interface
+
+### Landing page
+![Web App Homepage](img/homepage.png)
 
 ## **Project Structure**
 
