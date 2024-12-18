@@ -89,6 +89,9 @@ start docs\_build\html\index.html
 
 ---
 
+## System Architecture
+![System Architecture](img/sys-arch.png)
+
 ## User Interface
 
 ### Landing page:
