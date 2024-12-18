@@ -91,10 +91,10 @@ start docs\_build\html\index.html
 
 ## User Interface
 
-### Landing page
+### Landing page:
 ![Web App Homepage](img/homepage.png)
 
-### Custom Query
+### Custom Query:
 ![Custom Query Summarization Example](img/earthquake_query.png)
 
 ## **Project Structure**
