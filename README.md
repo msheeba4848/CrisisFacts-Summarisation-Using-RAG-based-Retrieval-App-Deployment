@@ -94,13 +94,13 @@ start docs\_build\html\index.html
 
 ## User Interface
 
-### Landing page:
+### Landing page
 ![Web App Homepage](img/homepage.png)
 
-### Query Events:
+### Query Events
 ![Query Events](img/earthquake_field1.png)
 
-### Custom Query:
+### Custom Query
 ![Custom Query Summarization Example](img/earthquake_query.png)
 
 ## **Project Structure**
@@ -130,7 +130,7 @@ start docs\_build\html\index.html
 ├── Dockerfile.backend       # Backend-specific Dockerfile
 ├── LICENSE                  # Project license
 ├── README.md                # Project overview and instructions
-├── discussion.pdf           # Discussion and analysis in PDF format
+├── discussion.pdf           # Discussion and analysis
 ├── docker-compose.yml       # Docker Compose configuration
 ├── download_model.py        # Script for downloading models
 ├── poetry.lock              # Poetry dependency lock file
