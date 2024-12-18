@@ -12,7 +12,7 @@ import os
 
 @pytest.fixture
 def sample_data():
-    """Fixture for sample data loaded from all_data_cleaned.csv."""
+    """Fixture for sample data and BM25 setup."""
     # Load data from CSV
     file_path = "../backend/data/processed/all_data_cleaned.csv"
     if not os.path.exists(file_path):
@@ -21,8 +21,14 @@ def sample_data():
     df = pd.read_csv(file_path)
     df['cleaned_text'] = df['cleaned_text'].fillna("").astype(str)
 
-    # Prepare BM25
-    tokenized_corpus = [text.split() for text in df['cleaned_text']]
+    # Filter out rows with empty 'cleaned_text'
+    df = df[df['cleaned_text'].str.strip() != ""]
+
+    # Add check for non-empty tokenized corpus
+    tokenized_corpus = [text.split() for text in df['cleaned_text'] if len(text.split()) > 0]
+    if len(tokenized_corpus) == 0:
+        pytest.fail("Tokenized corpus is empty after filtering. Ensure 'cleaned_text' column has valid text.")
+
     bm25 = BM25Okapi(tokenized_corpus)
 
     # Generate embeddings for cleaned text
@@ -35,7 +41,6 @@ def sample_data():
         np.save(embedding_path, embeddings)
 
     return df, bm25, embeddings
-
 
 def test_retrieve_top_events(sample_data):
     """Test for retrieve_top_events function using real data."""
@@ -51,11 +56,11 @@ def test_retrieve_top_events(sample_data):
 
     # Assertions
     assert len(top_events) <= top_k, "Top-k results exceed the specified limit."
-    assert isinstance(top_events, np.ndarray), "Output is not a numpy array."
+    assert isinstance(top_events, list), "Output is not a list."
+    assert all(isinstance(event, str) for event in top_events), "Not all elements in the output are strings."
     assert all(event in df['event'].values for event in top_events), "Some returned events do not exist in the dataset."
 
     print("Test passed: retrieve_top_events works as expected with real data!")
-
 
 if __name__ == "__main__":
     pytest.main(["-v", __file__])
