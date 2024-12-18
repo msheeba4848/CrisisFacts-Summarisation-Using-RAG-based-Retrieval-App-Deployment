@@ -107,16 +107,37 @@ start docs\_build\html\index.html
 
 ```plaintext
 .
-├── backend/                # Core backend retrieval and summarization modules
-├── data/                   # Raw and processed data files (tracked via GitHub LFS)
-├── docs/                   # Sphinx documentation files
-├── frontend/               # Frontend integration for user interaction
-├── retrieval/              # Retrieval system logic
-├── summarization/          # Summarization logic
-├── tests/                  # Unit and integration tests
-├── requirements.txt        # Dependency file for pip users
-├── pyproject.toml          # Poetry configuration file
-└── README.md               # Project overview and usage instructions
+├── .github/
+│   └── workflows/
+│       └── ci-cd.yml        # CI/CD workflow configuration
+├── EDA/                     # Data exploration and analysis files
+├── archive/                 # Archived project files
+├── backend/                 # Core backend retrieval and summarization modules
+├── code/                    # Miscellaneous code files
+├── crisis/                  # Crisis-related dataset and embeddings
+├── database/                # Database integration and updates
+├── docs/                    # Sphinx documentation files
+├── frontend/                # Frontend integration for user interaction
+├── img/                     # Image assets for the project
+├── models/                  # Model files tracked via Git LFS
+├── summarization/           # Summarization logic and modules
+├── tests/                   # Unit and integration tests
+├── .gitattributes           # Git LFS and attributes configuration
+├── .gitignore               # Files and directories to ignore in Git
+├── .pre-commit-config.yaml  # Pre-commit hooks configuration
+├── .readthedocs.yml         # ReadTheDocs configuration
+├── CHANGELOG.md             # Project changelog
+├── Dockerfile.backend       # Backend-specific Dockerfile
+├── LICENSE                  # Project license
+├── README.md                # Project overview and instructions
+├── discussion.pdf           # Discussion and analysis in PDF format
+├── docker-compose.yml       # Docker Compose configuration
+├── download_model.py        # Script for downloading models
+├── poetry.lock              # Poetry dependency lock file
+├── pyproject.toml           # Poetry configuration file
+├── pytest.ini               # Pytest configuration
+└── requirements.txt         # Dependency file for pip users
+
 ```
 
 ---
