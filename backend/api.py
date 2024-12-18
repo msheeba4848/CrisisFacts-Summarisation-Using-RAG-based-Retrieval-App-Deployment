@@ -3,121 +3,64 @@ import numpy as np
 import pandas as pd
 from flask import Flask, request, jsonify
 from rank_bm25 import BM25Okapi
-from transformers import AutoTokenizer, AutoModel
+from src.embedding import compute_query_embedding
 from src.retrieval import retrieve_top_events
 from src.summarize import summarize_texts, custom_query_summary
 from src.utils import filter_by_class_label, save_summary, normalize_input
-from src.embedding import compute_query_embedding
-import torch
 
 app = Flask(__name__)
 
-# ----------------- Configuration -----------------
+# Load data
+df = pd.read_csv("data/processed/all_data_cleaned.csv")
+df['cleaned_text'] = df['cleaned_text'].fillna("").astype(str)
 
-# Paths
-DATA_PATH = "data/processed/all_data_cleaned.csv"
-EMBEDDING_PATH = "data/embeddings/embeddings.npy"
-MODEL_NAME = "bert-base-uncased"  # Replace if using another model
-MODEL_CACHE_DIR = "./models"
+# Define paths
+embedding_path = "data/embeddings/embeddings.npy"
 
-# ----------------- Embedding Function -----------------
-def compute_query_embedding(texts, tokenizer, model):
-    """
-    Compute embeddings for a list of texts using a pre-trained tokenizer and model.
-    Args:
-        texts (list): List of input texts.
-        tokenizer: HuggingFace tokenizer object.
-        model: HuggingFace model object.
-    Returns:
-        numpy.ndarray: Embeddings for the input texts.
-    """
-    embeddings = []
+# Get cleaned texts
+texts = df['cleaned_text'].tolist()
 
-    for text in texts:
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
-        with torch.no_grad():
-            outputs = model(**inputs)
-            embedding = outputs.last_hidden_state.mean(dim=1)  # Mean pooling
-        embeddings.append(embedding.squeeze().numpy())
-
-    return np.array(embeddings)
-
-# ----------------- Load Data -----------------
-
-print("Loading data...")
-try:
-    df = pd.read_csv(DATA_PATH)
-    df['cleaned_text'] = df['cleaned_text'].fillna("").astype(str)
-    texts = df['cleaned_text'].tolist()
-    print("Data loaded successfully.")
-except FileNotFoundError as e:
-    print(f"Error: Data file not found at {DATA_PATH}. Exiting.")
-    raise e
-
-# ----------------- Load or Generate Embeddings -----------------
-
-print("Loading tokenizer and model...")
-tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, cache_dir=MODEL_CACHE_DIR)
-model = AutoModel.from_pretrained(MODEL_NAME, cache_dir=MODEL_CACHE_DIR)
-print("Tokenizer and model loaded successfully.")
-
-print("Loading embeddings...")
-if os.path.exists(EMBEDDING_PATH):
-    embeddings = np.load(EMBEDDING_PATH)
-    print("Embeddings loaded from file.")
+# Check if embeddings exist
+if os.path.exists(embedding_path):
+    embeddings = np.load(embedding_path)
 else:
-    print("Embeddings not found. Generating embeddings...")
     embeddings = compute_query_embedding(texts)
-    os.makedirs(os.path.dirname(EMBEDDING_PATH), exist_ok=True)
-    np.save(EMBEDDING_PATH, embeddings)
-    print("Embeddings generated and saved.")
+    np.save(embedding_path, embeddings)
 
-# ----------------- Initialize BM25 -----------------
-
-print("Preparing BM25...")
+# Prepare BM25
 tokenized_corpus = [text.split() for text in df['cleaned_text']]
 bm25 = BM25Okapi(tokenized_corpus)
-print("BM25 initialized.")
-
-# ----------------- Routes -----------------
 
 @app.route('/events', methods=['POST'])
 def get_events():
     query = request.json.get('query', '')
-    print(f"Received query: {query}")
+    print(f"Received query: {query}")  # Debugging: Check the received query
 
-    if not query:
-        print("Error: Query parameter is missing.")
-        return jsonify({"error": "Query parameter is missing."}), 400
+    normalized_query = normalize_input(query)
+    top_events = retrieve_top_events(normalized_query, bm25, embeddings, df, top_k=10, alpha=0.5)
+    original_events = [event for event in top_events]
+    print(f"Top events: {original_events}")  # Debugging: Log the top events
 
-    try:
-        normalized_query = normalize_input(query)
-        print(f"Normalized query: {normalized_query}")
-        
-        top_events = retrieve_top_events(normalized_query, bm25, embeddings, df, top_k=10, alpha=0.5)
-        print(f"Top events: {top_events}")
-
-        return jsonify({"events": top_events})
-    except Exception as e:
-        print(f"Error during event retrieval: {str(e)}")
-        return jsonify({"error": "Internal server error."}), 500
+    return jsonify({"events": original_events})
 
 
 @app.route('/labels', methods=['POST'])
 def get_labels():
+    # Receive the event from the request
     selected_event = request.json.get('event', '').strip()
-    print(f"Received event: {selected_event}")
+    print(f"Received event: {selected_event}")  # Debugging log
 
-    if not selected_event:
-        return jsonify({"error": "Event parameter is missing."}), 400
-
+    # Check if the event exists in the dataset
     filtered_df = df[df['event'] == selected_event]
     if filtered_df.empty:
+        print(f"No data found for event: {selected_event}")  # Debugging log
         return jsonify({"error": f"No data found for event '{selected_event}'"}), 404
 
+    # Retrieve unique class labels
     available_labels = filtered_df['class_label'].dropna().unique()
-    print(f"Available labels: {available_labels}")
+    print(f"Available labels for event '{selected_event}': {available_labels}")  # Debugging log
 
+    # Prepare response
     return jsonify({"labels": list(available_labels)})
 
 
@@ -125,37 +68,24 @@ def get_labels():
 def summarize():
     event = request.json.get('event', '')
     label = request.json.get('label', '')
-    print(f"Received event: {event}, label: {label}")
-
-    if not event or not label:
-        return jsonify({"error": "Event or label parameter is missing."}), 400
+    print(f"Received event: {event}, label: {label}")  # Debugging: Check inputs
 
     filtered_df = filter_by_class_label(df, event, label)
     if filtered_df.empty:
-        return jsonify({"error": f"No data found for event '{event}' and label '{label}'"}), 404
+        print(f"No data found for event '{event}' and label '{label}'.")  # Debugging
+        return jsonify({"error": "No relevant data found"}), 404
 
     summary = summarize_texts(filtered_df)
-    print(f"Generated summary: {summary}")
-
+    print(f"Generated summary: {summary}")  # Debugging
     return jsonify({"summary": summary})
 
 
 @app.route('/custom-summary', methods=['POST'])
 def custom_summary():
     query = request.json.get('query', '')
-    print(f"Received custom summary query: {query}")
-
-    if not query:
-        return jsonify({"error": "Query parameter is missing."}), 400
-
     normalized_query = normalize_input(query)
     summary = custom_query_summary(df, bm25, embeddings, normalized_query, alpha=0.5, top_k=10)
-    print(f"Generated custom summary: {summary}")
-
     return jsonify({"summary": summary})
 
-# ----------------- Main Entry Point -----------------
-
 if __name__ == "__main__":
-    print("Starting Flask server...")
-    app.run(host="0.0.0.0", port=5002, debug=True)
+    app.run(host="0.0.0.0", port=5002)
