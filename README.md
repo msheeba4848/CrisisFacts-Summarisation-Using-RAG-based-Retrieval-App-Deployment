@@ -69,7 +69,7 @@ Then, open a browser and navigate to `http://localhost:5300/`.
   Refines and re-ranks results based on semantic similarity using transformer-based embeddings.
 
 ### **Abstractive Summarization**
-- Summarizes retrieved documents for better comprehension of large datasets.
+- Summarizes retrieved documents for better and more efficient comprehension of large datasets.
 
 ---
 
