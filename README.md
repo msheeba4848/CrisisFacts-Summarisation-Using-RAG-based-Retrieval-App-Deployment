@@ -94,6 +94,9 @@ start docs\_build\html\index.html
 ### Landing page
 ![Web App Homepage](img/homepage.png)
 
+### Custom Query
+![Custom Query Summarization Example](img/earthquake_query.png)
+
 ## **Project Structure**
 
 ```plaintext
