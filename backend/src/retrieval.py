@@ -3,7 +3,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
-from backend.src.embedding import compute_query_embedding
+from src.embedding import compute_query_embedding  # Removed 'backend' prefix
 
 def retrieve_top_events(query, bm25, embeddings, df, top_k=5, alpha=0.5):
     """

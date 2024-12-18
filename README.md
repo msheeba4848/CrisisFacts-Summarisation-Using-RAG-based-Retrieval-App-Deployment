@@ -97,6 +97,9 @@ start docs\_build\html\index.html
 ### Landing page:
 ![Web App Homepage](img/homepage.png)
 
+### Query Events:
+![Query Events](img/earthquake_field1.png)
+
 ### Custom Query:
 ![Custom Query Summarization Example](img/earthquake_query.png)
 
