@@ -212,3 +212,6 @@ Alternatively, install dependencies directly without Poetry:
 - Keep an eye on GitHub’s **green check marks** to ensure CI/CD workflows pass.
 
 ---
+
+This project is licensed under an **All Rights Reserved** license. Unauthorized use, distribution, or modification of the code is strictly prohibited. For inquiries or permission requests, please contact [sm3924@georgetown.edu or msheeba00@gmail.com].
+
