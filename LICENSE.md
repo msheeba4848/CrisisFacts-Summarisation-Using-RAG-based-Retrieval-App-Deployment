@@ -28,5 +28,5 @@ This software is provided "as-is," without warranty of any kind, express or impl
 
 ---
 
-For any inquiries or permission requests, please contact [Your Contact Information].
+For any inquiries or permission requests, please contact [sm3924@georgetown.edu or msheeba00@gmail.com].
 
